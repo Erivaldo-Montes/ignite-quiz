@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 import { styles } from "./styles";
+import { THEME } from "../../styles/theme";
 
 import { QUIZ } from "../../data/quiz";
 import { historyAdd } from "../../storage/quizHistoryStorage";
@@ -22,7 +23,9 @@ import Animated, {
   Easing,
   useAnimatedScrollHandler,
   event,
+  Extrapolate,
 } from "react-native-reanimated";
+import { ProgressBar } from "../../components/ProgressBar";
 
 interface Params {
   id: string;
@@ -134,6 +137,44 @@ export function Quiz() {
     };
   });
 
+  const fixedProgressBarStyle = useAnimatedStyle(() => {
+    return {
+      position: "absolute",
+      zIndex: 1,
+      paddingTop: 50,
+      backgroundColor: THEME.COLORS.GREY_500,
+      width: "110%",
+      left: "-5%",
+      opacity: interpolate(
+        scrollYShared.value,
+        [50, 90],
+        [0, 1],
+        Extrapolate.CLAMP
+      ),
+      transform: [
+        {
+          translateY: interpolate(
+            scrollYShared.value,
+            [50, 100],
+            [-40, 0],
+            Extrapolate.CLAMP
+          ),
+        },
+      ],
+    };
+  });
+
+  const headerStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(
+        scrollYShared.value,
+        [50, 90],
+        [1, 0],
+        Extrapolate.CLAMP
+      ),
+    };
+  });
+
   useEffect(() => {
     const quizSelected = QUIZ.filter((item) => item.id === id)[0];
     setQuiz(quizSelected);
@@ -152,17 +193,26 @@ export function Quiz() {
 
   return (
     <View style={styles.container}>
+      <Animated.View style={fixedProgressBarStyle}>
+        <Text style={styles.title}>{quiz.title}</Text>
+        <ProgressBar
+          total={quiz.questions.length}
+          current={currentQuestion + 1}
+        />
+      </Animated.View>
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.question}
         onScroll={handlerScroll}
         scrollEventThrottle={16}
       >
-        <QuizHeader
-          title={quiz.title}
-          currentQuestion={currentQuestion + 1}
-          totalOfQuestions={quiz.questions.length}
-        />
+        <Animated.View style={[styles.header, headerStyle]}>
+          <QuizHeader
+            title={quiz.title}
+            currentQuestion={currentQuestion + 1}
+            totalOfQuestions={quiz.questions.length}
+          />
+        </Animated.View>
 
         <Animated.View style={shakeAnimatedStyle}>
           <Question
