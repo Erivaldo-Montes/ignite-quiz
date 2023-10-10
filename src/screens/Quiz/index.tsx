@@ -102,9 +102,9 @@ export function Quiz() {
     }
 
     if (quiz.questions[currentQuestion].correct === alternativeSelected) {
-      setPoints((prevState) => prevState + 1);
       await playSound(true);
       setStatusReply(1);
+      setPoints((prevState) => prevState + 1);
       handleNextQuestion();
     } else {
       await playSound(false);
