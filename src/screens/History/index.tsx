@@ -80,7 +80,6 @@ export function History() {
                   swipeableRefs.current.push(ref);
                 }
               }}
-              friction={1.5}
               onSwipeableOpen={() => handleRemove(item.id, index)}
               overshootLeft={false}
               leftThreshold={30}
